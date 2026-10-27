@@ -11,7 +11,7 @@
 | 宿主 | 目录 | 安装 |
 |---|---|---|
 | dsh | `dsh-plugin/` | `dsh plugin --profile <profile> add "link:./dsh-plugin"` |
-| claude | `claude-plugin/` | `/plugin marketplace add LinHoMo/yi-plugins` → `/plugin install yi`（未真机验证） |
+| claude | `claude-plugin/` | `/plugin marketplace add LinHoMo/yi-plugins` → `/plugin install yi@yi-plugins`（309 批真机通过） |
 | codex | `codex-plugin/` | `codex plugins install https://github.com/LinHoMo/yi-plugins` 或登记 .agents/plugins/marketplace.json |
 | gemini | `gemini-plugin/` | `gemini extensions install https://github.com/LinHoMo/yi-plugins` |
 | yan | `yan-plugin/` | Yan 市场添加来源 `https://github.com/LinHoMo/yi-plugins`，稀疏路径填 `yan-plugin` |
