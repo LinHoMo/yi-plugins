@@ -10,11 +10,11 @@
 
 | 宿主 | 目录 | 安装 |
 |---|---|---|
-| dsh | `dsh-plugin/` | dsh plugin --profile <profile> add "link:./dsh-plugin" |
-| claude | `claude-plugin/` | /plugin marketplace add <owner/yi-plugins>  →  /plugin install yi |
-| codex | `codex-plugin/` | 在 $REPO_ROOT/.agents/plugins/marketplace.json 登记后 codex plugins install |
-| gemini | `gemini-plugin/` | gemini extensions install <git url> |
-| yan | `yan-plugin/` | Yan 插件市场添加来源 <git url>，稀疏路径填 yan-plugin |
+| dsh | `dsh-plugin/` | `dsh plugin --profile <profile> add "link:./dsh-plugin"` |
+| claude | `claude-plugin/` | `/plugin marketplace add LinHoMo/yi-plugins` → `/plugin install yi`（未真机验证） |
+| codex | `codex-plugin/` | `codex plugins install https://github.com/LinHoMo/yi-plugins` 或登记 .agents/plugins/marketplace.json |
+| gemini | `gemini-plugin/` | `gemini extensions install https://github.com/LinHoMo/yi-plugins` |
+| yan | `yan-plugin/` | Yan 市场添加来源 `https://github.com/LinHoMo/yi-plugins`，稀疏路径填 `yan-plugin` |
 
 需要本机 **Python 3.10+**（引擎是 Python）与 **node**（MCP 入口）。
 
