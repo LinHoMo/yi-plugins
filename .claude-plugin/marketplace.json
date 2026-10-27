@@ -8,8 +8,8 @@
     {
       "name": "yi",
       "source": {
-        "source": "url",
-        "url": "https://github.com/LinHoMo/yi-claude.git"
+        "source": "github",
+        "repo": "LinHoMo/yi-claude"
       },
       "description": "六爻纳甲与八字四柱的确定性排盘与解读（随包 Python 引擎）",
       "version": "1.0.0"
