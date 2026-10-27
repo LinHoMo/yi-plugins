@@ -1,0 +1,490 @@
+/* 易 · 六爻报告唯一样式层（276 批重排：宣纸卷面，与 dsh-plugin 八字排版层同一视觉语言）。
+   历史约定保持：排盘报告与解读报告共用这一份 CSS，同一副卦只交付一种长相；
+   选择器一条不丢——丢一条，某段版式当场散架（第一版合并时丢过 29 个类）。
+
+   276 批变更说明（不改任何选择器名，只改值）：
+   · 配色从「蓝渐变页头 + 白圆角卡」换成宣纸/墨/朱砂/黛青/赭金 token（与八字 HTML 报告一致）；
+   · 页头 emoji 版式改印章版式（.seal，render.py 同步改标记）；
+   · 旧文件里 335-344 行那组**无 @media 包裹**的降级规则（body 14px、页头纵排等，
+     系历史合并时丢失媒体查询所致）归位进 @media (max-width:720px)；
+   · 345-348 行同理归位进 @media print。 */
+
+/* ═══ 基础变量 ═══ */
+:root {
+    --paper: #efe7d5;
+    --sheet: #faf6ec;
+    --card: #fdfaf2;
+    --ink: #332e26;
+    --ink-light: #8c8271;
+    --line: #d9cfb8;
+    --hair: #e6ddc8;
+    --red: #a8402f;      /* 朱砂 */
+    --indigo: #41586a;   /* 黛青 */
+    --gold: #96783a;     /* 赭金 */
+    --gold-light: #f4ecd9;
+    --jade: #3f7252;     /* 青玉 */
+    --border: var(--hair);
+    --shadow: 0 1px 2px rgba(80, 64, 40, .12), 0 12px 32px rgba(80, 64, 40, .10);
+    --radius: 4px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.8;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+/* ═══ 字体平滑 ═══ */
+::selection {
+    background: rgba(168, 64, 47, 0.15);
+}
+/* ═══ Header（宣纸卷首：印章 + 居中题 + 文武线） ═══ */
+.report-header {
+    padding: 2.6rem 1.5rem 0;
+    text-align: center;
+    margin-bottom: 0;
+}
+.header-inner {
+    max-width: 720px;
+    margin: 0 auto;
+}
+.seal {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--red);
+    color: #f9f2e4;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 2px rgba(249, 242, 228, .35), 0 2px 6px rgba(120, 40, 25, .28);
+}
+.header-symbol { /* 兼容旧标记（☯ 文本符号）；新报告用 .seal */
+    font-size: 2.4rem;
+    margin-bottom: 0.4rem;
+    color: var(--red);
+    opacity: 0.9;
+}
+.report-header h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: 0.42em;
+    padding-left: 0.42em; /* 抵消末字间距，保持视觉居中 */
+    margin-bottom: 0.7rem;
+    color: var(--ink);
+}
+.header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem 1.5rem;
+    font-size: 0.86rem;
+    color: var(--ink-light);
+    margin-bottom: 0.4rem;
+}
+.meta-item { white-space: nowrap; }
+.header-meta .meta-item:first-child { color: var(--ink); }
+.header-sub {
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    margin-top: 0.25rem;
+    letter-spacing: 0.05em;
+}
+.header-rule {
+    max-width: 720px;
+    margin: 1.3rem auto 0;
+    border-top: 3px solid var(--ink);
+    position: relative;
+}
+.header-rule::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 6px;
+    border-top: 1px solid var(--ink);
+}
+/* ═══ Body（卷面：一张卡纸） ═══ */
+.report-body {
+    max-width: 860px;
+    margin: 1.6rem auto 0;
+    padding: 2.4rem 2.6rem 1.6rem;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 120px),
+        var(--sheet);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+/* ═══ Card ═══ */
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(80, 64, 40, .08);
+    padding: 1.4rem 1.5rem;
+    margin-bottom: 1.25rem;
+}
+.card h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--ink);
+    margin-bottom: 0.85rem;
+}
+.card h2::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--red);
+    transform: rotate(45deg);
+    flex: none;
+}
+.card h2::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--hair);
+}
+/* ═══ 结论卡 ═══ */
+.card-verdict {
+    border-top: 3px solid var(--red);
+    text-align: center;
+}
+.verdict-badge {
+    display: inline-block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 0.45rem 2.2rem;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.35em;
+    padding-left: calc(2.2rem + 0.35em);
+    color: #f9f2e4;
+}
+.verdict-score {
+    font-size: 0.95rem;
+    color: var(--ink-light);
+    margin-bottom: 0.75rem;
+}
+.verdict-score strong {
+    font-size: 1.15rem;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+.verdict-headline {
+    font-size: 1rem;
+    color: var(--ink);
+    line-height: 1.8;
+    text-align: left;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--hair);
+    margin-top: 0.4rem;
+}
+/* ═══ 推因摘要 ═══ */
+.explain-text {
+    font-size: 0.95rem;
+    color: var(--ink);
+    line-height: 1.8;
+}
+/* ═══ SVG 容器 ═══ */
+.svg-container {
+    width: 100%;
+    overflow-x: auto;
+    text-align: center;
+    padding: 0.25rem 0;
+}
+.svg-container svg {
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+}
+/* mark 高亮 */
+mark {
+    background: var(--gold-light);
+    color: var(--gold);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+/* ═══ 正文 ═══ */
+.body-text p {
+    margin-bottom: 0.75rem;
+    text-indent: 2em;
+    line-height: 1.85;
+}
+.body-text p:last-child {
+    margin-bottom: 0;
+}
+/* ═══ 卡片变体 ═══ */
+.card-timing {
+    border-top-color: var(--gold);
+    background: linear-gradient(180deg, var(--gold-light), var(--card) 70%);
+}
+/* 应期列表（render.py 结要卡内是无类 <ul>，默认圆点与居中文本错位） */
+.card-timing h3 { text-align: center; letter-spacing: 0.4em; padding-left: 0.4em; }
+.card-timing ul { list-style: none; padding: 0; margin: 0.3rem 0 0; }
+.card-timing li {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--hair);
+    font-variant-numeric: tabular-nums;
+}
+.card-timing li:last-child { border-bottom: none; }
+/* ═══ 行动建议 ═══ */
+.advice-list {
+    list-style: none;
+    padding: 0;
+}
+.advice-list li {
+    position: relative;
+    padding: 0.5rem 0.5rem 0.5rem 1.6rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--hair);
+}
+.advice-list li:last-child {
+    border-bottom: none;
+}
+.advice-list li::before {
+    content: "";
+    position: absolute;
+    left: 0.35rem;
+    top: 0.95rem;
+    width: 5px; height: 5px;
+    background: var(--gold);
+    transform: rotate(45deg);
+}
+/* ═══ 表格 ═══ */
+.table-wrapper {
+    overflow-x: auto;
+}
+.yao-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+.yao-table th {
+    background: var(--card);
+    color: var(--ink-light);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    border-bottom: 2px solid var(--line);
+    white-space: nowrap;
+}
+.yao-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--hair);
+    white-space: nowrap;
+}
+.yao-table tbody tr:nth-child(even) {
+    background: rgba(217, 207, 184, .14);
+}
+.role-tag {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    background: var(--card);
+}
+.role-用神 { background: #eef3ea; color: var(--jade); border-color: #c9d8c5; }
+.role-原神 { background: #eef0f2; color: var(--indigo); border-color: #c8d0d8; }
+.role-忌神 { background: #f7ebe6; color: var(--red); border-color: #e0c4b8; }
+.role-仇神 { background: var(--gold-light); color: var(--gold); border-color: #e2d3ac; }
+.role-闲神 { background: #f3efe4; color: var(--ink-light); }
+.no-data {
+    color: var(--ink-light);
+    font-style: italic;
+    padding: 1rem 0;
+}
+/* ═══ 经典引文 ═══ */
+.quotes-block blockquote {
+    border-left: 3px solid var(--gold);
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.75rem;
+    background: var(--gold-light);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.92rem;
+}
+.quote-source {
+    font-weight: 600;
+    color: var(--gold);
+    margin-right: 0.5em;
+}
+/* ═══ 卦辞 ═══ */
+.judgment-text {
+    font-size: 0.92rem;
+    line-height: 1.8;
+    color: var(--ink);
+    padding: 0.7rem 0.9rem;
+    background: var(--card);
+    border: 1px solid var(--hair);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    margin-top: 0.6rem;
+}
+/* ═══ 降级因子列表 ═══ */
+.factor-fallback {
+    list-style: none;
+    padding: 0;
+}
+.factor-fallback li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--hair);
+    font-size: 0.88rem;
+}
+.factor-fallback li:last-child { border-bottom: none; }
+.factor-fallback .fname { font-weight: 600; min-width: 80px; }
+.factor-fallback .fscore {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: right;
+}
+.factor-fallback .freason { color: var(--ink-light); flex: 1; }
+.factor-fallback .pos .fscore { color: var(--jade); }
+.factor-fallback .neg .fscore { color: var(--red); }
+/* ═══ 附录 ═══ */
+.card-appendix {
+    border-top-color: var(--ink-light);
+    background: #f6f2e7;
+}
+.card-appendix summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink-light);
+    padding: 0.25rem 0;
+}
+.card-appendix summary:hover { color: var(--ink); }
+.process-list {
+    margin-top: 0.75rem;
+}
+.process-item {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--hair);
+    font-size: 0.88rem;
+}
+.process-item:last-child { border-bottom: none; }
+.process-label {
+    display: inline-block;
+    background: var(--indigo);
+    color: #f9f2e4;
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+.process-text {
+    color: var(--ink-light);
+}
+/* ═══ 免责声明 ═══ */
+.card-disclaimer {
+    border-top-color: var(--ink-light);
+    background: #f6f2e7;
+}
+.disclaimer-text {
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+}
+/* ═══ Footer ═══ */
+.report-footer {
+    max-width: 860px;
+    margin: 1.4rem auto 0;
+    padding: 0 1rem 2.2rem;
+    text-align: center;
+    color: var(--ink-light);
+    font-size: 0.76rem;
+    line-height: 1.9;
+}
+.report-footer::before {
+    content: '';
+    display: block;
+    width: 180px;
+    margin: 0 auto 0.8rem;
+    border-top: 3px solid var(--ink);
+    position: relative;
+}
+
+/* ── 窄屏降级（旧版这组曾丢 @media 导致全局缩到 14px，现归位） ── */
+@media (max-width: 720px) {
+    body { font-size: 14px; }
+    .report-header h1 { font-size: 1.3rem; }
+    .seal { width: 38px; height: 38px; font-size: 1.25rem; }
+    .header-symbol { font-size: 2rem; }
+    .header-meta { flex-direction: column; gap: 0.3rem; align-items: center; }
+    .report-body { margin-top: 1rem; padding: 1.2rem 1rem; }
+    .card { padding: 1rem; }
+    .verdict-badge { font-size: 1.15rem; padding: 0.35rem 1.4rem; }
+    .yao-table { font-size: 0.78rem; }
+    .yao-table th, .yao-table td { padding: 0.3rem 0.4rem; }
+    .factor-fallback li { flex-wrap: wrap; }
+    .factor-fallback .freason { width: 100%; margin-top: 0.25rem; }
+}
+
+/* ── 打印（旧版这组同样丢过 @media，现归位） ── */
+@media print {
+    body { background: #fff; }
+    .report-body { box-shadow: none; border: none; margin: 0; max-width: none; }
+    .card { box-shadow: none; break-inside: avoid; }
+    .report-header { padding-top: 0; }
+    .card-appendix details { display: block !important; }
+}
+
+/* ── 排盘报告图形层 ── */
+.container { max-width: 860px; margin: 0 auto; }
+.card h3 { font-size: 0.95rem; color: var(--ink); margin: 0.7rem 0 0.5rem; font-weight: 700; letter-spacing: 0.1em; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+.info-row { display: flex; gap: 10px; }
+.info-label { color: var(--ink-light); min-width: 60px; text-align: right; }
+.info-value { color: var(--ink); font-weight: 500; }
+.hexagram-section { display: flex; gap: 8px; flex-wrap: wrap; }
+.hexagram-box { flex: 1; min-width: 280px; }
+.chart-box { margin: 8px 0; }
+.chart-box svg { max-width: 100%; height: auto; }
+.verdict-auspicious { background: var(--jade); }
+.verdict-neutral { background: var(--indigo); }
+.verdict-inauspicious { background: var(--red); }
+.step-chain { border-left: 3px solid var(--indigo); padding-left: 16px; margin: 8px 0; }
+.step-chain .step-item { margin: 8px 0; padding: 10px; background: var(--card); border: 1px solid var(--hair); border-radius: 4px; }
+.step-item .step-title { font-weight: 600; color: var(--indigo); font-size: 0.9rem; }
+.footer { text-align: center; color: var(--ink-light); font-size: 0.78rem; margin-top: 40px; padding: 16px; }
+table.detail-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+table.detail-table th, table.detail-table td {
+        padding: 6px 10px; border: 1px solid var(--hair); text-align: center;
+    }
+table.detail-table th { background: var(--card); font-weight: 600; }
+table.detail-table tr:nth-child(even) { background: rgba(217, 207, 184, .14); }
+/* --- 标签页 --- */
+    .tab-nav {
+        display: flex; gap: 0; margin-bottom: 20px;
+        background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px;
+        position: sticky; top: 10px; z-index: 10;
+    }
+.tab-btn {
+        flex: 1; padding: 10px 16px; border: none; background: transparent;
+        font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 3px;
+        color: var(--ink-light); transition: all 0.2s; text-align: center;
+        font-family: inherit;
+    }
+.tab-btn:hover { background: var(--gold-light); color: var(--ink); }
+.tab-btn.active { background: var(--indigo); color: #f9f2e4; font-weight: 600; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.serif-title { font-family: "Songti SC", "SimSun", serif; }
+
+@media (max-width: 720px) {
+    .hexagram-section { flex-direction: column; }
+    .info-grid { grid-template-columns: 1fr; }
+    .tab-btn { font-size: 12px; padding: 8px 6px; }
+}

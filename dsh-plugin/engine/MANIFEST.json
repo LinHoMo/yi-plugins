@@ -1,0 +1,38 @@
+{
+  "builtAt": "2026-10-27T00:18:42.661Z",
+  "source": "plugins/scripts/build.mjs",
+  "disciplines": {
+    "liuyao": {
+      "includes": [
+        "core",
+        "scripts",
+        "data/rules",
+        "references",
+        "assets"
+      ],
+      "dataJson": [
+        "classical_patterns_data.json",
+        "narrative_templates.json",
+        "trigram_symbolism.json",
+        "verdicts.json",
+        "yilin_buyi_maps.json"
+      ]
+    },
+    "bazi": {
+      "includes": [
+        "core",
+        "scripts",
+        "data/rules",
+        "references"
+      ],
+      "dataJson": [
+        "ditian_sui.json",
+        "liushen_image.json",
+        "nayin_quxiang.json",
+        "shi_shen_actions.json",
+        "tiaohou_quotes.json",
+        "verdicts.json"
+      ]
+    }
+  }
+}

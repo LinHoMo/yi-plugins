@@ -1,0 +1,19 @@
+{
+  "_note": "本目录**未真机验证**：Claude Code 的市场条目通常指向独立插件仓库，此处改为指向同仓子目录，需实测确认。未跑通前请用 claude --plugin-dir ./claude-plugin 本地试装。",
+  "name": "yi-plugins",
+  "owner": {
+    "name": "Yi contributors"
+  },
+  "plugins": [
+    {
+      "name": "yi",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/LinHoMo/yi-plugins.git"
+      },
+      "path": "./claude-plugin",
+      "description": "六爻纳甲与八字四柱的确定性排盘与解读（随包 Python 引擎）",
+      "version": "1.0.0"
+    }
+  ]
+}

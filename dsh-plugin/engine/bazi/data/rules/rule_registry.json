@@ -1,0 +1,199 @@
+{
+ "schema": "yi-rule-registry-v1",
+ "discipline": "bazi",
+ "_comment": "八字科规则注册表（Phase 5 Evidence Maturation：评测覆盖降到规则级，范式照六爻）。domain 括号内的英文串是 analyze.conclusion.verdicts 的 code / 顶层键——evidence.factor 互为子串即挂接（attach_rule_registry，先命中先得，顺序即优先级）。仅注册有真实评测 dim 的解释性规则；无评测 dim 的机械结构标签（xunkong/san_hui/tai_yuan/ten_god_combo/tong_guan/pillar_relations/female_fu_zi/tian_ke_di_chong）不注册、沿用学科基线（golden 指纹覆盖），缺口登记于本表 _uncovered 数组（原登记处 docs/TECH-DEBT.md §2.5，该台账已随扁平化删除、节号不再存在，2026-10-13 按实改注）；strength 例外——已有 external_holdout report-only 读数（bazi_external_cases.json），如实登记于 _uncovered ming.strength，加权 dim 化待口径变更登记。**回验契约（2026-10-09 起有牙齿，现由 dev_tools/check_rule_registry.py＝门禁 [12] 逐条回指；此处此前挂 tests/test_bazi_rule_registry.py，该文件系扁平化前旧树路径、现已不存在，2026-10-13 按实改注）**：① 评测 dim 必须是 scripts/evaluate.py WEIGHTS 的键；② impl 写成 `<file>:<symbol>`（可带括号说明），`<symbol>` 必须在 `<file>` 里**真的定义**（ast 顶层 def/class/赋值；仅被 import 进来不算——原实现把 pattern.py:tiaohou_of 当定义处、把 dayun 8 步归给 analyze.py，均属指针错误，已改指真定义处）；③ quote_in_data 指针必须可解引用，且其引文逐字命中 source.corpus.files 登记的在库语料（该引文库条目若带 corpus_line，按行级回验）；④ 状态必须与「带期望例数」相符：dayun 维度 0 applicable ⇒ 如实标 mechanical_regression，不得虚标 classical_holdout；shensha 第一百六十九批起 5 applicable（书证回填，逐例书证与选取规则见 docs/CHANGELOG.md 第一百六十九批，其 note 明写 n=5、其余 333 例书无明写）⇒ 标 classical_holdout。两维的例数由 dev_tools/check_dim_lock.py（门禁 [25]）双向锁死（多了＝未登记回填判红，少了＝回填静默丢失判红）。",
+ "rules": [
+  {
+   "rule_id": "ming.tiaohou",
+   "domain": "调候（tiaohou）",
+   "impl": "core/yishu_core/ming_tables.py:tiaohou_of（月支×日干查表定义处；scripts/pattern.py 只在 import 处引用，由 strength_and_pattern 写入 result['tiaohou']，analyze 顶层透出）",
+   "source": {
+    "book": "《穷通宝鉴》",
+    "locator": "调候用神表（按月日干查；逐字引文库 data/tiaohou_quotes.json 120 键）",
+    "quote_in_data": "bazi/data/tiaohou_quotes.json#1甲.quote",
+    "corpus_files": [
+     "data/sources/qiong-tong-bao-jian.wikitext.txt",
+     "data/sources/qiong_tong_bao_jian_dz.dz.txt"
+    ],
+    "corpus_note": "引文库 110 条 quote 全部逐字命中 wikitext 语料；dz.txt（评注整理本）另有 18 格与之逐字相同。判据按「至少命中一份在库语料」，不放过任何一条改写。",
+    "verified": true
+   },
+   "applicability": "月支本气×日干查调候表；无明文的格返回 None（如实缺省，不硬补）；主神 10 分+佐神 6 分为评测口径",
+   "evaluation": {
+    "status": "classical_holdout",
+    "splits": [
+     "tune",
+     "holdout"
+    ],
+    "dim": "tiaohou",
+    "note": "tiaohou 维度 51 例 expected（tune 30 + holdout 21）全部对齐（2026-10-02 读数，详见 HANDOFF §一）"
+   }
+  },
+  {
+   "rule_id": "ming.pattern",
+   "domain": "格局成败（pattern）",
+   "impl": "scripts/bazi_factors/_common.py:PATTERN_CB_RULES（strength_and_pattern 成破救应分支；原记 scripts/pattern.py——该文件第一百六十七批已拆为薄 re-export 壳，而本常量未进 bazi_factors.__all__，故经壳不可达，实为死指针，按真实定义处更正。注：原写法把旧壳与本常量拼成一条指针，被本批新挂的 impl 回验门当场判红，故此处只写文件不拼符号）",
+   "source": {
+    "book": "《子平真诠》",
+    "locator": "论用神成败救应/论相神紧要（八格逐条原文见实现文件头注释）",
+    "quote_in_code": "bazi/data/sources/ziping_zhenquan_pingzhu_dz.dz.txt#官逢财印，又无刑冲破害",
+    "quote_placement_note": "该锚点落在《子平真诠评注》在库底本的原文行（成败章），不是代码字面量——本字段读作「原文在实现文件里可指回的位置」，不读作「引文住在代码里」；运行时判据只取本表 applicability 描述的机械主干（§三：断语/引文进 data）",
+    "verified": true
+   },
+   "applicability": "只取透干十神有无的主干判据；判定顺序：成条件满足→成格，忌神透→有救应则救成、无救则破，忌未透→成格；地支会合/位置/合化等徐注细节机械层不做",
+   "evaluation": {
+    "status": "classical_holdout",
+    "splits": [
+     "tune",
+     "holdout"
+    ],
+    "dim": "pattern",
+    "note": "pattern 维度（格局名 8 + 成破救应 4）：成破救应 36 例全 holdout，28/36 对齐（灰区 8 例登记，2026-10-02 读数）"
+   }
+  },
+  {
+   "rule_id": "ming.cong_ge",
+   "domain": "从格（special_pattern）",
+   "impl": "scripts/bazi_factors/congrge.py:_from_judge（tentative_special / from_kind / from_type；原记 scripts/pattern.py，该文件已拆为薄 re-export 壳，此处改指真实定义处）",
+   "source": {
+    "book": "《滴天髓》",
+    "locator": "从化论/从象/假从章（任铁樵注；诀句原文见实现文件 docstring）",
+    "quote_in_code": "bazi/scripts/bazi_factors/congrge.py#从得真者只论从",
+    "quote_placement_note": "该锚点落在 bazi_factors/congrge.py 的 **docstring**，且为**简体转写**；繁体逐字原文另存 `data/verdicts.json#从格引文.verse`。本字段读作「实现处的指路注释」，不读作「引文住在代码里」（改字会违反 §二 照录不转简）",
+    "verified": true
+   },
+   "applicability": "从弱成立下判真/假从与从旺/从强/从气/从势；官杀当权不落从势（当令且透干或双透成党）；根被会夺/比劫虚浮等灰区维持登记不硬填",
+   "evaluation": {
+    "status": "classical_holdout",
+    "splits": [
+     "tune",
+     "holdout"
+    ],
+    "dim": "cong_ge",
+    "note": "cong_ge 维度 15 例全 holdout：布尔 13/15（真/假灰区 2 例登记）、from_kind 15/15（kind 在同 dim 内评，2026-10-02 读数）"
+   }
+  },
+  {
+   "rule_id": "ming.dayun",
+   "domain": "大运（dayun）",
+   "impl": "scripts/bazi_factors/dayun.py:dayun_table（8 步循环定义处；scripts/analyze.py 调它写 result['dayun']；起运折算常量 DAYS_PER_LUCK_YEAR/MONTHS_PER_DAY 与方向判据 dayun_direction 在 core/yishu_core/ming_tables.py。原记 scripts/pattern.py，该文件已拆为薄 re-export 壳，此处改指真实定义处）",
+   "source": {
+    "book": "《神峰通考》",
+    "locator": "起大运法阳男阴女/阴男阳女两节（「折除三日，为一岁」＋顺数/逆数至节气折算；语料行 2608/2612 逐字在库——2026-10-04n 核对翻转；机制同《渊海子平》通行口径）",
+    "quote_in_data": "bazi/data/rules/dayun_quotes.json#yang_male_yin_female.quote",
+    "corpus_files": [
+     "data/sources/shen-feng-tong-kao.wikitext.txt"
+    ],
+    "corpus_note": "dayun_quotes.json 两条引文各带 corpus_line（2608/2612），回验按行级逐字命中；该文件 _provenance.source_file 与本字段须一致。",
+    "quote_in_code": "core/yishu_core/ming_tables.py#三日折一年",
+    "verified": true
+   },
+   "applicability": "顺逆按年干阴阳×性别；起运岁≈距节气日数/3（三日=一年，一日=四月）；只推干支不批吉凶",
+   "evaluation": {
+    "status": "mechanical_regression",
+    "splits": [
+     "tune",
+     "holdout"
+    ],
+    "dim": "dayun",
+    "note": "dayun 维度案例集 0 applicable（expected 缺）——机械覆盖=golden 指纹+回归；对齐覆盖待外部集（禁人为制造 expected）；不得虚标 classical_holdout。【第一百六十九批把「书不写」量化成数】source_quote+note 扫主评分语料 338 例：明言行运方向（顺行/逆行/顺走/逆走…）0 例、明言起运/交运 0 例 ⇒ 空档是书不写、不是漏回填。同批修掉评分面一个潜伏缺陷：dayun 维旧口径固定拿 12 当分母，只注顺逆的例答对也只记 8/12＝66.7%（只注起运则 4/12＝33.3%），把「书没写」记成扣分、违反本评测文件自己写明的规则；现改为按实际写出的子项取 8/4/12，负例自证见 dev_tools/eval_selftest.py 第 8、9 场景（改前必红：66.7%／33.3%）。本维一旦有书证回填即可直接接上、不会被静默压分；例数由门禁 [25] 维度适用数锁锁 0/0。书源引文已逐字挂接（2026-10-04n），evaluation 状态维持 mechanical_regression 不变（缺 expected 与引文核对是两回事）"
+   }
+  },
+  {
+   "rule_id": "ming.shensha",
+   "domain": "神煞（shensha）",
+   "impl": "core/yishu_core/shensha.py:shensha_of_chart（analyze 顶层 result['shensha']，只安星不批吉凶）",
+   "source": {
+    "book": "《五行精纪》《三命通会》《命理探源》",
+    "locator": "【2026-10-13 第一百六十七批更正】本条此前记「起例不在书源／在库书源否定」并据此维持 verified=false——**该结论有误**：2026-10-04n 那次补查只命中《神峰通考》张楠「总论子平谬说类」的**批判**语境，据此推断全库否定，未检其余书。复核实测：在库**三书均有肯定性起例**——①《五行精纪》卷十三「论释吉贵神例」源L1999 逐字「甲戊庚牛羊，乙庚鼠猴乡，丙丁猪鸡位，壬癸兔蛇藏，六辛逢马虎，此是贵人强。」（该卷专章罗列吉贵神例，属**立说**非批判）；②《三命通会》源L552 自先天坤/后天坤两路**完整推导**天乙贵人「此推之则甲戊庚贵人之居丑未…明矣」；③《命理探源》源L731「《古歌》云：甲戊庚牛羊，乙己鼠猴乡」。故神煞起例**有书可据**，verified 由 false 升为 true；《神峰通考》张楠之驳**如实并存登记**（门内两说并存，不抹平）。",
+    "quote_in_code": "core/yishu_core/shensha.py#甲戊庚牛羊",
+    "quote_in_source": "data/sources/wuxing_jingji_dz.dz.txt:1999",
+    "quote": "甲戊庚牛羊，乙庚鼠猴乡，丙丁猪鸡位，壬癸兔蛇藏，六辛逢马虎，此是贵人强。",
+    "verified": true,
+    "书内异文_第二组干支": "「鼠猴乡」一组干支**库内异文并存**：《五行精纪》源L1999 作「**乙庚**鼠猴乡」；《神峰通考》源L25 作「**乙巳**鼠猴乡」（批判语境）；而《五行精纪》另 2 处、《命理探源》源L731、《神峰通考》另 2 处作「**乙己**鼠猴乡」。**引擎从多数作「乙己」**（表 TIAN_YI_GUI_REN：甲戊庚→丑未、乙己→子申、丙丁→亥酉、壬癸→卯巳、辛→午寅）。逐格对拍（§四.5）：《五行精纪》源L1999 贵人诀共**五组**，引擎实得 **4 组逐字全同**（甲戊庚→牛羊＝丑未、丙丁→猪鸡＝亥酉、壬癸→兔蛇＝卯巳、辛→马虎＝午寅）；唯一差异在「鼠猴乡」一组的**冠干**——书L1999 冠「乙庚」、引擎从众本作「乙己」，而该组**地支对「子申」三本一致**。即：异的是「哪些天干落在子申」，不是「子申是不是贵人」。**登记读法而非判错**：若日后定以《五行精纪》单一文本为准，则该格应作「乙庚」——须与神煞其余各表一并复核后再动，本轮**不改引擎**（改则牵动 shensha 全部下游读数，须先有反事实对拍基准）。",
+    "驳说并存": "《神峰通考》**dz 本**源L25（总论子平谬说类）与源L864（楠断曰）张楠明斥贵人诸说「原取名之不据理出…甚为虚诞」「飘空而立，不根理出，岂可信乎？」；《三命通会》源L3237 等条下（丁亥日壬寅时「日贵格配合壬寅官印俱全文章显逹子月大贵」）又按「日贵格」**照用**。故本条不是「无据」，而是**同一门内立说与驳说并存**：本仓按「只标所在、不批吉凶」取其安星一面（见 applicability），驳说如实登记不抹平（铁律三）。"
+   },
+   "applicability": "按通行口诀机械安星；只标所在、不批旺衰吉凶（铁律三）；日时同支去重。起例书证见 source（2026-10-13 已更正为 verified=true，含「乙己/乙庚」书内异文登记）。shensha 维度 **5 applicable**（第一百六十九批书证回填，选取规则确定性、非挑案例）：以引擎可安出基名 16 项（shensha_of_chart；全表 19 项，另禄神/红艳/天喜只在择吉安星里出、本维不评，实测见 scratch/_probe_name_counts.py）机械扫主评分语料 338 例的 source_quote+note，命中 5 例且全部回填——MT521 书作「羊刃」（《穷通宝鉴》论庚·八月「且见羊刃…名为羊刃驾杀」）；ZP006「此石友三命造，阳刃格」、ZP007「月令阳刃用官」、ZP031「地支阳刃，煞刃格成也」、MT550「阳刃帮身，较前更旺」书作**异名「阳刃」**（阳干之刃，与羊刃同义，expected 存引擎规范名「羊刃」）。变体名普查（阳刃/咸池/贵人/天德/文曲/童子等 18 词）除阳刃这 4 例外 0 命中 ⇒ 其余 **333 例书文 0 处提及神煞名、维持空档**（书不逐盘明写，不是漏回填；按 §三.4 不得由口诀自行推导，那将使该维自证）。例数由门禁 [25] 维度适用数锁锁 0/5（tune/holdout），多了判红。",
+   "evaluation": {
+    "status": "classical_holdout",
+    "splits": [
+     "tune",
+     "holdout"
+    ],
+    "dim": "shensha",
+    "note": "shensha 维度案例集 **5 applicable**（第一百六十九批书证回填，全部在 holdout：MT521、ZP006、ZP007、ZP031、MT550）⇒ 由 mechanical_regression 升 classical_holdout（core/yishu_core/evidence.py 语义：被古籍案例对齐评测覆盖）。**读数口径**：适用 5/338、其余 333 例按 N/A 剔除，故该维百分比只对这 5 例成立、必须连适用数一起报（本批实测 5/5），不得外推为全库覆盖；机械覆盖仍 = golden 指纹 + 回归。选取规则确定性：书文命中引擎可安出神煞基名者全收（5/5 全中），非按分数挑案例。**为何只回填这 5 例**：书源给的是起例口诀，333 例未在书中逐盘明写「本盘有何神煞」，按 §三.4 不得由口诀自行推导（那将使该维自证），维持空档；例数由 dev_tools/check_dim_lock.py（门禁 [25]）双向锁 0/5（tune/holdout），回填多了少了都判红。"
+   }
+  },
+  {
+   "rule_id": "ming.dayun_yindong",
+   "domain": "行运引动（dayun_ming_yindong / liunian_ming_yindong）",
+   "impl": "bazi/scripts/bazi_factors/dayun.py:yindong_relations（**八条机制唯一实现**；枚举器 dayun_ming_yindong／liunian_ming_yindong 共用，analyze 顶层两键透出，narrate「行运引动」小节并列）",
+   "source": {
+    "book": "《神峰通考》《渊海子平》《千里命稿》《三命通会》《千里明镜》",
+    "locator": "补第三支／半合：源L1856「行丁丑，是巳酉丑会金局，乃杀重」＋源L2531「直运至辛亥，亥卯合局印授扶身」（半合须含中神）；干引本具之局：《渊海子平》源L387「纔交乙巳运，为己之七杀，引出亥卯未木局」；冲命支：源L1848「入庚子运…又是午月，冲破甲子」；虚拱填实：源L1848「行辛卯运填实卒」＋「四柱不可占了贵禄之宫，则填实不容物」；入墓：《千里命稿》源L1955「正官格，行墓运，即是官星入墓」＋《三命通会》源L253「然火命逢之则为入墓」（火墓在戌＝三合生旺墓序第三位）＋源L1868「后大运行己丑…庚入墓也」；岁支会局：源L2528「再行卯运，及岁支财神会局」＋《渊海子平》源L388「见庚子年」。起运算术：《千里明镜》源L308／L329 两条自足算例；《神峰通考》源L2608「折除三日为一岁」；引文逐条内嵌于实现处 basis 字段，见证集 12 例见 bazi/data/cases/bazi_dayun_cases.json（门禁 [18] 回验）；拱格层：源L917 逐字「忌刑冲了日时拱位，又怕四柱中有伤日干七杀，皆拱不信禄贵」＋十日五时清单＋「亦忌禄贵落空」；源L836 逐字「不要填实虚位，怕冲月时，或冲日干七杀」；源L922 逐字「既为拱亡，则拱不信贵人，所以不取此日时为拱贵也」",
+    "quote_in_code": "bazi/scripts/bazi_factors/dayun.py#yindong_relations",
+    "verified": true
+   },
+   "applicability": "只标结构、不批吉凶、不进 conclusion、不参与格局判档，亦不覆写本命结论（铁律三）；半合须含中神（寅戌无午不称半合）；墓支例外于「外来支不在命」守卫（书明言丑已在日支而行己丑运仍「庚入墓」）；土无墓库位（诸家异说、库书无一致明文）一律不标；DY010 同触发「补第三支」与「入墓」时两标并陈，不代书择一；拱格受伤只在虚拱成立处判（支冲日/时支 或 干克日干＝七杀），日时组合是否源L917 十日清单以 in_roster 分档带出，清单外（如壬辰/壬寅）标 false 不称已验；夹支落日柱旬空另发 gong_ge_luo_kong，且只在拱被起用之处报一次，不逐运重复；**拱格落空已裁定为破拱**（非「不裁」）：《三命通会》源L1816 逐字「伤了日时拱不住贵气大忌塡实空亡」与同段「完则能盛破则无用所以怕见空亡歳运同」、《三命通会》源L3331 逐字「得拱大贵忌空亡填实」、《神峰通考》源L922 逐字「既为拱亡，则拱不信贵人」四处同证 ⇒ 落空之日时不发「伤拱格」（无格可伤），填实与落空两条结构标签仍保留（书把填实、空亡并列大忌）。异说不抹平：《神峰通考》源L1848 王郎中一造（甲寅旬空子丑、所拱之丑正落空）仍按拱格断命，本仓从多数明文裁定，叙述性异例已在此点名留档",
+   "evaluation": {
+    "status": "mechanical_regression",
+    "splits": [
+     "tune",
+     "holdout"
+    ],
+    "dim": "dayun",
+    "note": "主评分语料 338 例（tune 60／holdout 278，2026-10-13 按 #39 清冗余后的实测更正；原注 670 例／138／532 系清出前口径）的 expected 里行运键实测为 0 ⇒ dayun 维度在对齐面空转，本层一律不计分；覆盖由 dev_tools/check_dayun_cases.py（门禁 [18]）三层回验：12 例逐字＋方向唯一、引擎排运 12/12 与书一致、13 处书明言机制出标签、2/2 起运算例、负例自证 8 式（含「反面判据空跑必被抓」：不该出的标签出现同样判红）；本命侧另由金标准机械层 2a4c9258d6c1e4cb 守（运岁合流与入墓层两次改动均零漂移；原登记 1be8d5b579463a47 系第一百六十批前的旧指纹，按 golden.py verify 当前读数更正）。不得虚标 classical_holdout"
+   }
+  }
+ ],
+ "_uncovered": [
+  {
+   "rule_id": "ming.bing_yao",
+   "domain": "病药（bing_yao）",
+   "impl": "bazi/scripts/bazi_factors/bingyao.py:bing_yao（analyze 顶层 result['bing_yao']；原记 scripts/pattern.py，该文件已拆为薄 re-export 壳，此处改指真实定义处）",
+   "source": {
+    "book": "《神峰通考》",
+    "locator": "病药说类 + 雕枯旺弱四病说类；全文 data/sources/shen-feng-tong-kao.wikitext.txt",
+    "quote_in_data": "bazi/data/verdicts.json#病药引文.thesis",
+    "corpus_files": [
+     "data/sources/shen-feng-tong-kao.wikitext.txt"
+    ],
+    "quote_in_code": "bazi/scripts/bazi_factors/_common.py#BING_YAO_THESIS",
+    "quote_placement_note": "2026-10-09 断语外置批次：引文本体已从 .py 字面量移到 data/verdicts.json#病药引文（AGENTS.md §三「断语/引文进 data，代码只留算法」）。quote_in_code 仍有效——BING_YAO_THESIS 在 pattern.py 里现为**数据装载位**（BING_YAO_THESIS = _BING[\"thesis\"]），锚点回验的是装载位置而非字面量；同一分支的 label/所本/note 也在那张表。thesis 为书源逐字子串（已按 corpus_files 复核），渲染文本与本表改动前逐字相同。",
+    "verified": true
+   },
+   "why_not_registered": "evaluate.py WEIGHTS 无 bing_yao 维度——注册表 rules 契约要求 dim 必须是评分器真实键，病药无对齐案例集，故不入 rules（如实登记于此，勿虚标 classical_holdout）",
+   "coverage": "mechanical_regression：golden 机械层 + narrate 措辞层指纹＋病药见证集 data/cases/bazi_bing_yao_cases.json（2 例，external_holdout 由 [17] 回验）。【2026-10-13 更正】此文本前挂 tests/test_bazi_bing_yao.py（5 例）——本科从无 tests/ 目录、该文件不存在（git 全历史 0 命中），且见证集实为 2 例非 5 例；古籍对齐覆盖待从《神峰通考·人命见验类》提取病药命例后建立，届时再建维度与注册条目",
+   "maturity": "C→B 未完成：古籍→规则→代码已通；古籍命例已入库（bazi_bing_yao_cases.json n=2，external_holdout），但与实现存在层级性口径分歧（书源病在藏干、引擎判病在月令主轴，方向相反），故不计分",
+   "layer_divergence": "data/cases/bingyao_cross_source.json（_verdict_summary/open 两键）；原登记于已删除的 docs/TECH-DEBT.md §2.7，2026-10-13 改指现行可回指处",
+   "provenance_mix": "规则表内混两类知识：土厚埋金=source_backed_exact；金/火/水/木四行病名与「比肩夺财」（含劫财）=source_informed_generalization。评测时两类不得混同，generalization 只作通则回归"
+  },
+  {
+   "rule_id": "ming.strength",
+   "domain": "强弱扶抑（strength）",
+   "impl": "bazi/scripts/bazi_factors/strength.py:strength_and_pattern（analyze 顶层 result['strength']；三档标签 偏旺/偏弱/中和，阈值 WEAK/STRONG_THRESHOLD=±1.5。原记 scripts/pattern.py，该文件已拆为薄 re-export 壳，此处改指真实定义处）",
+   "source": {
+    "book": "《渊海子平》通行口径（身旺喜克泄耗/身弱喜生扶）；根权重机制《滴天髓阐微·衰旺》任注（2026-10-04d 已逐字取证落地）",
+    "locator": "《渊海子平》维基文库实测 missingtitle（不在库）；阐微衰旺章全文 data/sources/di-tian-sui-chan-wei.wikitext.txt（语料行 2452；「奶之轻者也」为 wikisource 转写讹字，通行本作「根」）",
+    "quote_in_code": "bazi/scripts/bazi_factors/_common.py#ROOT_STAGE_ELEMENTS",
+    "verified": true
+   },
+   "why_not_registered": "evaluate.py WEIGHTS 无 strength 维度（强弱读数为 report-only，不进加权均分）——rules 契约要求 dim 必须是评分器真实键；外部集已立（bazi_external_cases.json，split=external_holdout 永不调参），维度加权化属口径变更，须先登记 CHANGELOG 并冻结集合",
+   "coverage": "external_holdout（report-only）：`python scripts/evaluate.py --split external_holdout` → 强弱对齐 30/45（2026-10-13 实跑 python scripts/evaluate.py --split external_holdout；旧值 17/19 系 2026-10-04 首批口径 n=19，按 §四.4 新旧不可比；纳入规则与类别映射见案例文件 _provenance）。机械覆盖：日主之根宫位分层已落地（`source.quote_in_code`＝`bazi_factors/_common.py#ROOT_STAGE_ELEMENTS` 由 [12] 逐条回指；外集隔离另由 [13] 案例库隔离门守）。【2026-10-13 更正】此文本前挂 tests/test_bazi_strength_root_stage.py——本科从无 tests/ 目录、该文件不存在（git 全历史 0 命中），属幽灵指针",
+   "maturity": "2026-10-04d 裁决+落地：①衰旺章根层级（长生禄旺重根/墓库余气轻根/天干比肩最轻）逐字取证，引擎根权重按宫位轴落地（ROOT_STAGE_ELEMENTS 木火金水；土寄四隅流派不一维持层位权重，如实登记）。②归因修正：2026-10-04 首批登记的「ZE005/ZE017 失配同指根权重未区分禄刃长生」经反事实测量证伪——按书源轴重映射后 ZE005 Δ=0.0、ZE017 Δ=−0.25，两例均不翻转（17/19 不变）；剩余失配候选机制=中和带宽（±1.5 无书源标定）/三会支局未入强弱/天干十神零权重（书源「比肩如朋友之相扶」主张正权但量级无书源数），三者均待独立证据，禁止拿外集调参。③分列验收：tune 100.0(n=30)/holdout 96.7(n=246)/外集 17/19 全部持平，金标准带理由重捕（仅 weak_zhengguan2 strength_score −5.20→−5.45，标签/格局不变）"
+  },
+  {
+   "rule_id": "bazi.corpus_partial_wiring",
+   "domain": "语料节选深度（多盘并集接线残差的定性结论）",
+   "impl": "dev_tools/corpus_wiring_report.py（A 键不可达／B 元数据／C 键名模板／E 容器未触发／D 未归类）＋ dev_tools/check.py [8]（判定仍是「0 命中即红」，归类只出明细不改分母）",
+   "source": {
+    "book": "《滴天髓阐微》《千里命稿》《三命通会》《子平真诠评注》",
+    "locator": "残差逐条落点见本条 counts；章题级引用与否由 narrate 的引用位决定（如《滴天髓阐微》天干論 42/44 已引、歲運論 1/19、體用論 1/11）",
+    "quote_in_code": "bazi/dev_tools/corpus_wiring_report.py#main",
+    "verified": true
+   },
+   "why_not_registered": "定性完毕：历史上被当成『接线不足』的差额，绝大多数**不是缺陷**——调候 117 条未引全部落在 276 盘取不到的「月序+日干」格（可达 97/120）**部分接线容器 0 个**；纳音唯 己丑 带 `别称` 旁支（L262「己丑为天将之火」），narrate 按主性质名取，属设计内旁支字段；元数据/键名模板类共约 150 条本就面向工程师不进报告。**真可改进项**是节选深度：ditian_sui 有 17 个部分接线容器（歲運論 引1/未引18、體用論 1/10 等）、liushen_image 与 shi_shen_actions 每个十神只引 1–2 条提纲——引多深是产品裁定（报告可读性 vs 书文覆盖），不是 bug，故不擅自扩引；若要加深须同步测措辞基线与报告面，按 §四.4 另批登记",
+   "next_step": "若裁定要加深岁运/体用引用：先在 narrate 对应段加引用位并跑 golden＋check＋只读外部集，再把本条从 _uncovered 摘掉（豁免表条目接上反而判红，防清单烂掉）"
+  }
+ ]
+}
